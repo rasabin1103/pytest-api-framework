@@ -1,29 +1,41 @@
-# LUDA – API Testing Framework  
-### Pytest + Requests | Level Up Digital Academy
+# 🚀 Pytest API Framework  
+### Scalable REST API Testing Template for Real Engineering Teams
 
-Framework base para **testing de APIs REST en Python**, diseñado con mentalidad de ingeniería real:
+A production-ready API testing framework built on Pytest and Requests, designed for maintainability, scalability, and CI/CD integration from day one.
 
-- 🧱 **Modular** – estructura clara y extensible  
-- 📈 **Escalable** – crece sin refactorizaciones dolorosas  
-- 🔌 **Plug & Play** – clonas, configuras y ejecutas  
-- ⚙️ **Configuración sobre código** – se cambia `.env`, no el core  
 
 ---
 
-## 🛠️ Stack Tecnológico
+## 🎯 Framework Philosophy
 
-- Python 3.x  
+This is not just a collection of tests.
+
+It is designed around clear architectural principles:
+
+- 🧱 Modular architecture
+- 📈 Scalable without painful refactors
+- 🔌 True Plug & Play
+- ⚙️ Configuration over code
+- 🔍 Strict separation between HTTP logic and tests
+- 📦 CI/CD-ready from day one
+
+---
+
+## 🛠️ Technology Stack
+
+- Python >= 3.10 / Recommended: Python 3.12 
 - Pytest  
 - Requests  
 - python-dotenv  
 - pytest-html (reporte opcional)  
+- Configurable logging
 
 ---
 
-## 📁 Estructura del Proyecto
+## 📁 Project Structure
 
 ```text
-luda_api-testing-pytest-framework/
+pytest-api-framework/
 │
 ├── assertions/
 │   ├── __init__.py
@@ -43,7 +55,7 @@ luda_api-testing-pytest-framework/
 │
 ├── tests/
 │   ├── conftest.py
-│   ├── health_test/
+│   ├── health/
 │   │   └── test_fruits.py
 │   └── fruit/
 │       └── test_fruit_all.py
@@ -54,15 +66,55 @@ luda_api-testing-pytest-framework/
 └── README.md
 ```
 
+## 🧠 Internal Architecture
+
+### clients/
+
+Contains all HTTP logic.
+
+BaseClient is responsible for:
+
+- Base URL handling
+- Timeouts
+- Optional HTTP logging
+- Request encapsulation
+
+Tests do not build URLs manually.
+Tests call the client.
+
+### assertions/
+
+Centralizes reusable validations:
+
+- assert_status
+- assert_json_content_type
+- Future schema validations
+
+Prevents duplicated assert response.status_code == 200 everywhere.
+
+### config/
+
+Loads configuration from .env using python-dotenv.
+
+The framework is designed so environments change without touching the code.
+
+### tests/
+
+Only tests live here.
+
+No HTTP logic.
+No configuration logic.
+Only expected behavior.
+
 ## ⚡ Quickstart
 
-### 1️⃣ Clonar el repositorio
+### 1️⃣ Clone the repository
 ```bash
-git clone <URL_DEL_REPO>
-cd luda_api-testing-pytest-framework
+git clone <REPOSITORY_URL>
+cd pytest-api-framework
 ```
 
-### 2️⃣ Crear entorno virtual (venv)
+### 2️⃣ Create virtual environment (venv)
 
 #### Windows (PowerShell)
 ```bash
@@ -82,13 +134,13 @@ python -m venv venv
 source venv/bin/activate
 ```
 
-## 3️⃣ Instalar dependencias
+## 3️⃣ Install dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
-## 4️⃣ Configurar el entorno (.env)
-Crear un archivo .env en la raíz del proyecto:
+## 4️⃣ Configure environment (.env)
+Create a .env file at project root:
 
 ```env
 BASE_URL=https://fruityvice.com/api
@@ -99,49 +151,49 @@ LOG_HTTP=true
 LOG_LEVEL=DEBUG
 ```
 
-⚠️ Regla importante sobre BASE_URL
+⚠️ Important Rule
 ```text
-BASE_URL debe ser solo la base común (host + prefijo), sin endpoints finales.
+BASE_URL must contain only the common base.
 
-Correcto:
+Correct:
 - BASE_URL=https://fruityvice.com/api
 - HEALTH_ENDPOINT=/fruit/all
 
-Incorrecto:
+Incorrect:
 - BASE_URL=https://fruityvice.com/api/fruit/all
 ```
 
-## 5️⃣ Ejecutar los tests
+## 5️⃣ Run tests
 ```bash
 pytest -v
 ```
 
-## 6️⃣ Generar reporte HTML (opcional)
+6️⃣ Generate HTML report (optional)
 ```bash
 pytest --html=report.html --self-contained-html
 ```
 
-## 🧪 Pytest – Reglas Importantes (pytest.ini)
+## 🧪 Pytest Conventions (pytest.ini)
 ```text
 testpaths = tests
-→ Pytest solo buscará tests dentro de la carpeta tests/
+→ Tests are discovered only inside /tests
 
 python_files = test_*.py
-→ Los archivos de test deben comenzar por test_
+→ Test files must start with test_
 
-Si se desea cambiar la convención:
+If the convention is to be changed:
 - python_files = *_test.py
 - python_files = test_*.py *_test.py
 
-El framework tiene activado log_cli = true para mostrar logs en consola.
+The framework has log_cli = true enabled to display logs in console.
 
 ```
 
-## 🪵 Logging (Opcional)
+## 🪵 Configurable Logging
 ```text
-Por defecto el framework funciona sin logs.
+By default, logging is disabled.
 
-Para activarlos:
+Enable in .env:
 LOG_HTTP=true
 LOG_LEVEL=INFO
 
@@ -152,9 +204,9 @@ LOG_LEVEL=WARNING / ERROR → salida mínima
 
 ```
 
-## 🔄 Flujo Recomendado para Añadir Nuevas Pruebas
+## 🔄 How to Add New Tests
 
-### 1️⃣ Crear carpeta por dominio / feature
+### 1️⃣ Create domain-based folder
 
 ```text
 tests/users/
@@ -163,14 +215,14 @@ tests/auth/
 tests/health/
 ```
 
-### 2️⃣ Crear archivo de test siguiendo la convención
+### 2️⃣ Create test file following convention
 
 ```text
 tests/users/test_users.py
 tests/orders/test_orders.py
 ```
 
-### 3️⃣ Usar el cliente global (fixture)
+### 3️⃣ Use global client fixture
 
 ```bash
 def test_example(client):
@@ -178,7 +230,7 @@ def test_example(client):
     assert response.status_code == 200
 ```
 
-### 4️⃣ Reutilizar assertions comunes
+### 4️⃣ Reuse common assertions
 
 ```bash
 from assertions.api_assertions import (
@@ -187,9 +239,9 @@ from assertions.api_assertions import (
 )
 ```
 
-## 🌍 Cómo Testear Diferentes APIs REST
+## 🌍 Multi-Environment Testing
 
-### Opción A – Cambiar .env y ejecutar
+### Option A — Manually change .env
 ```text
 BASE_URL=https://mi-api.com/api
 HEALTH_ENDPOINT=/health
@@ -198,13 +250,13 @@ HEALTH_ENDPOINT=/health
 pytest -v
 ```
 
-### Opción B – Múltiples .env por entorno (recomendada)
+### Option B — Multiple .env files (recommended)
 ```text
 .env.fruityvice
 .env.staging
 .env.prod
 ```
-Ejemplo .env.staging:
+Example: .env.staging:
 
 ```text
 BASE_URL=https://staging.mi-api.com/api
@@ -218,9 +270,37 @@ LOG_LEVEL=INFO
 set DOTENV_FILE=.env.staging && pytest -v
 ```
 
-### Opción C – Clientes separados por API
+### Option C — Multiple Clients
 ```text
 clients/mi_api_client.py
 clients/otra_api_client.py
 ```
 Y exponer fixtures distintas en conftest.py.
+
+## 🏗️ Design Principles
+
+-  Short and expressive tests
+
+- Reusable HTTP client
+
+- Decoupled configuration
+
+- CI/CD ready
+
+- Reporting friendly
+
+- Easily extendable to:
+
+    - JSON Schema validation
+
+    - Lightweight contract testing
+
+    - Centralized authentication
+
+    - Pipeline integration
+
+
+## 👤 Maintainer
+
+**Roberto Arce**  
+QA Strategy Lead | Quality Engineering & Automation Architecture | Shift-Left & CI/CD Advocate
