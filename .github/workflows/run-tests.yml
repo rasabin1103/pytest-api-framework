@@ -1,10 +1,12 @@
-name: Run API Tests
-
 on:
   workflow_dispatch:
     inputs:
       base_url:
         description: 'URL base del entorno a testear'
+        required: true
+        type: string
+      health_endpoint:
+        description: 'Endpoint de salud a comprobar'
         required: true
         type: string
 
@@ -26,7 +28,7 @@ jobs:
       - name: Run tests
         env:
           BASE_URL: ${{ inputs.base_url }}
-          HEALTH_ENDPOINT: ${{ vars.HEALTH_ENDPOINT }}
+          HEALTH_ENDPOINT: ${{ inputs.health_endpoint }}
           TIMEOUT: "10"
           LOG_HTTP: "false"
           LOG_LEVEL: "INFO"
