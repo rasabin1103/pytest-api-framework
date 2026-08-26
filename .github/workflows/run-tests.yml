@@ -5,10 +5,48 @@ on:
         description: 'URL base del entorno a testear'
         required: true
         type: string
-      health_endpoint:
-        description: 'Endpoint de salud a comprobar'
-        required: true
+      auth_type:
+        description: 'none | bearer | basic | api_key | custom'
+        required: false
         type: string
+        default: 'none'
+      method:
+        description: 'Metodo HTTP para la peticion dinamica (dejar vacio para no ejecutarla)'
+        required: false
+        type: choice
+        default: ''
+        options:
+          - ''
+          - GET
+          - POST
+          - PUT
+          - PATCH
+          - DELETE
+      endpoint:
+        description: 'Endpoint relativo a base_url, ej. /orders'
+        required: false
+        type: string
+        default: ''
+      body:
+        description: 'Body en JSON (solo si aplica al metodo elegido)'
+        required: false
+        type: string
+        default: ''
+      headers:
+        description: 'Headers puntuales en JSON, ej. {"X-Trace-Id":"abc"}'
+        required: false
+        type: string
+        default: ''
+      params:
+        description: 'Query params en JSON, ej. {"q":"banana"}'
+        required: false
+        type: string
+        default: ''
+      expected_status:
+        description: 'Status esperado (opcional). Si se deja vacio, solo se reporta el resultado.'
+        required: false
+        type: string
+        default: ''
 
 jobs:
   test:
@@ -30,8 +68,21 @@ jobs:
           BASE_URL: ${{ inputs.base_url }}
           HEALTH_ENDPOINT: ${{ inputs.health_endpoint }}
           TIMEOUT: "10"
-          LOG_HTTP: "false"
+          LOG_HTTP: "true"
           LOG_LEVEL: "INFO"
+          AUTH_TYPE: ${{ inputs.auth_type }}
+          AUTH_TOKEN: ${{ secrets.AUTH_TOKEN }}
+          AUTH_USERNAME: ${{ secrets.AUTH_USERNAME }}
+          AUTH_PASSWORD: ${{ secrets.AUTH_PASSWORD }}
+          API_KEY_HEADER: ${{ vars.API_KEY_HEADER }}
+          API_KEY_VALUE: ${{ secrets.API_KEY_VALUE }}
+          EXTRA_HEADERS: ${{ vars.EXTRA_HEADERS }}
+          REQ_METHOD: ${{ inputs.method }}
+          REQ_ENDPOINT: ${{ inputs.endpoint }}
+          REQ_BODY: ${{ inputs.body }}
+          REQ_HEADERS: ${{ inputs.headers }}
+          REQ_PARAMS: ${{ inputs.params }}
+          REQ_EXPECTED_STATUS: ${{ inputs.expected_status }}
         run: pytest -v --html=report.html --self-contained-html
 
       - name: Upload HTML report
@@ -40,3 +91,11 @@ jobs:
         with:
           name: pytest-report
           path: report.html
+
+      - name: Upload dynamic request result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: request-result
+          path: request_result.json
+          if-no-files-found: ignore
