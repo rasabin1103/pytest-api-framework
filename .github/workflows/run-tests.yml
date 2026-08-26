@@ -83,7 +83,7 @@ jobs:
           REQ_HEADERS: ${{ inputs.headers }}
           REQ_PARAMS: ${{ inputs.params }}
           REQ_EXPECTED_STATUS: ${{ inputs.expected_status }}
-        run: pytest -v --html=report.html --self-contained-html
+        run: pytest -v -s --html=report.html --self-contained-html
 
       - name: Upload HTML report
         if: always()
